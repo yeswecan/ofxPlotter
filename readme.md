@@ -1,6 +1,8 @@
 ofxPlotter
 ==========
 
+![alt tag](https://raw.githubusercontent.com/yeswecan/ofxPlotter/master/screenshot.png)
+
 Introduction
 ------------
 A simple function plotter class for openFrameworks with built-in variable filtering and a ascetic syntax.
