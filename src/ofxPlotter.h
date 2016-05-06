@@ -65,7 +65,6 @@ public:
             if (history[i->first].size() > windowSize) {
                 history[i->first].erase(history[i->first].begin());
             }
-//            ofLog() << i->first << " : " << i->second.getF();
         }
     }
     
@@ -75,9 +74,30 @@ public:
         
     }
     
+    
+    void drawOverlay(float x, float y, float width, float height) {
+        int graphCount = values.size();
+        float mx = (ofGetMouseX() - x) / width;
+        float my = (ofGetMouseY() - y) / height;
+        int yspace = (float)height / graphCount;
+        
+        int index = (my / (1 / (float)graphCount));
+        
+        ofSetColor(255);
+        
+        int counter = 0;
+        for (std::map<std::string, ofxPlotter::Value>::iterator i = values.begin(); i != values.end(); i++) {
+            if (index == counter) {
+                float position = (mx * history[i->first].size());
+                ofDrawBitmapStringHighlight(ofToString(history[i->first][position].getF()), x + mx * width, y + my * height);
+            }
+            counter++;
+        }
+    }
+    
     void draw(float x, float y, float width, float height, int verticalLines = 16) {
-        int graphCounts = values.size();
-        int yspace = (float)height / graphCounts;
+        int graphCount = values.size();
+        int yspace = (float)height / graphCount;
         int index = 0;
         for (std::map<std::string, ofxPlotter::Value>::iterator i = values.begin(); i != values.end(); i++) {
             std::vector<ofxPlotter::Value>* historyValues = &history[i->first];
@@ -125,6 +145,8 @@ public:
             
             index++;
         }
+        
+        if (drawMouseOverlay) drawOverlay(x, y, width, height);
     }
     
     std::map<std::string, ofxPlotter::Value> values;
@@ -140,6 +162,8 @@ public:
     int getWindowSize() {
         return windowSize;
     }
+    
+    bool drawMouseOverlay = true;
 };
 
 #endif /* ofxPlotter_h */
