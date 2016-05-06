@@ -15,6 +15,8 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    ofBackgroundGradient(ofColor(20), ofColor(75));
+    
     plotter.draw(0, 0, ofGetWidth(), ofGetHeight());
     
     

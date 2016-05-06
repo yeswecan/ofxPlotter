@@ -119,8 +119,6 @@ public:
             float stepWidth = width / historyValues->size();
             ofPushMatrix();
             ofTranslate(0, yspace * index);
-            ofSetColor(ofColor::fromHsb((index * 75), 255, 50, 20));
-            ofDrawRectangle(0, 0, width, yspace);
             
             ofSetColor(ofColor::fromHsb((index * 75), 255, 50, 25));
             ofSetLineWidth(2);
