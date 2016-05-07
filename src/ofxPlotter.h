@@ -15,6 +15,7 @@
 
 #include "ofMain.h"
 
+
 class ofxPlotter {
     
     class Value {
@@ -66,13 +67,15 @@ public:
             if (history[i->first].size() > windowSize) {
                 history[i->first].erase(history[i->first].begin());
             }
-            accents[i->first].push_back(false);
+            if (accents[i->first].size() > windowSize) {
+                accents[i->first].erase(accents[i->first].begin());
+            }
+            accents[i->first].push_back(0);
         }
     }
     
     void addAccent(std::string index) {
-//        ofLog() << "added accent";
-        accents[index][accents[index].back()] = true;
+        accents[index][accents[index].size() - 1] = 5;
     }
     
     void update(ofEventArgs & args) {
@@ -144,15 +147,32 @@ public:
                     if (j != 0) ofLine(p2, p);
                     p2 = p;
                     
-                    if (accents[i->first][j]) {
+                }
+            
+                int lastx = -200;
+                for (int j = 0; j < (*historyValues).size(); j++) {
+                    if (accents[i->first][j] != 0) {
                         ofSetColor(255);
                         ofSetLineWidth(2);
                         ofLine(j * stepWidth, index * yspace,
-                               j * stepWidth, index * (yspace + 1));
-                        ofLog() << "accent at index " << j;
+                               j * stepWidth, (index - 1) * yspace);
+                        ofCircle(j * stepWidth, index * yspace, 3);
+                        float mid = 0;
+                        if (j > 5) {
+                            for (int k = j - 5; k < j + 5; k++) {
+                                mid += (*historyValues)[k].getF();
+                            }
+                            mid /= 10;
+                        }
+                        if ((j * stepWidth - lastx) > 200) {
+                            ofDrawBitmapStringHighlight(ofToString(mid), j * stepWidth, index * yspace - 15);
+                            lastx = j * stepWidth;
+                        }
                     }
                 }
-                ofDrawBitmapStringHighlight(i->first + " ; current: " + ofToString(values[i->first].getFiltered(0.5)) + " ; min: " + ofToString(min) + " ; max: " + ofToString(max), 25, 25);
+            
+                ofSetColor(255, 50);
+                ofDrawBitmapStringHighlight(i->first + " ; current: " + ofToString(values[i->first].getFiltered(0.5), 4) + " ; min: " + ofToString(min, 4) + " ; max: " + ofToString(max, 4), 25, 25);
             ofPopMatrix();
             
             index++;
@@ -163,7 +183,7 @@ public:
     
     std::map<std::string, ofxPlotter::Value> values;
     std::map<std::string, std::vector<ofxPlotter::Value>> history;
-    std::map<std::string, std::vector<bool>> accents;
+    std::map<std::string, std::vector<int>> accents;
     
     
     // Parameters
