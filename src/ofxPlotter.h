@@ -65,11 +65,19 @@ public:
             if (history[i->first].size() > windowSize) {
                 history[i->first].erase(history[i->first].begin());
             }
+            accents[i->first].push_back(false);
         }
     }
     
-    Value& operator[](std::string righthand) {
+    void addAccent(std::string index) {
+        accents[index][accents[index].back()] = true;
+    }
+    
+    void update() {
         updateHistory();
+    }
+    
+    Value& operator[](std::string righthand) {
         return (Value&)values[righthand];
         
     }
@@ -77,6 +85,7 @@ public:
     
     void drawOverlay(float x, float y, float width, float height) {
         int graphCount = values.size();
+        if (!ofRectangle(x, y, width, height).inside(ofGetMouseX(), ofGetMouseY())) return;
         float mx = (ofGetMouseX() - x) / width;
         float my = (ofGetMouseY() - y) / height;
         int yspace = (float)height / graphCount;
@@ -99,11 +108,12 @@ public:
         int graphCount = values.size();
         int yspace = (float)height / graphCount;
         int index = 0;
+        float colorspaceWidth = 255. / (float)graphCount;
         for (std::map<std::string, ofxPlotter::Value>::iterator i = values.begin(); i != values.end(); i++) {
             std::vector<ofxPlotter::Value>* historyValues = &history[i->first];
             
             // Measuring the function scale
-            float sum;
+            float sum = 0;
             float max = -999999999;
             float min = 999999999;
             for (int i = 0; i < historyValues->size(); i++) {
@@ -118,27 +128,29 @@ public:
             
             float stepWidth = width / historyValues->size();
             ofPushMatrix();
-            ofTranslate(0, yspace * index);
-            
-            ofSetColor(ofColor::fromHsb((index * 75), 255, 50, 25));
-            ofSetLineWidth(2);
-            if (verticalLines > 0 ) {
-                float verticalLineW = width / verticalLines;
-                for (int j = 0; j < verticalLines; j++) {
-                    ofLine(j * verticalLineW, 0, j * verticalLineW, height);
+                ofTranslate(x, y + yspace * index);
+                
+                ofPoint p, p2;
+                for (int j = 0; j < (*historyValues).size(); j++) {
+                    
+                    float mappedPoint = 1 - ofMap((*historyValues)[j].getF(), min, max, 0, 1);
+                    
+                    p = ofPoint(j * stepWidth,
+                                mappedPoint * yspace);
+                    ofSetLineWidth(2);
+                    ofSetColor(ofColor::fromHsb((index * colorspaceWidth), 255, 200, 255));
+                    if (j != 0) ofLine(p2, p);
+                    p2 = p;
+                    
+                    if (accents[i->first][j]) {
+                        ofSetColor(255);
+                        ofSetLineWidth(2);
+                        ofLine(j * stepWidth, index * yspace,
+                               j * stepWidth, index * (yspace + 1));
+//                        ofLog() << "accent at index " << j;
+                    }
                 }
-            }
-            
-            
-            ofSetColor(ofColor::fromHsb((index * 75), 255, 200, 255));
-            ofPoint p, p2;
-            for (int i = 0; i < (*historyValues).size(); i++) {
-                p = ofPoint(i * stepWidth, yspace / 2 + (*historyValues)[i].getF() * yspace * multiplier);
-                ofSetLineWidth(3);
-                ofLine(p2, p);
-                p2 = p;
-            }
-            ofDrawBitmapStringHighlight(i->first + " ; current: " + ofToString(values[i->first].getFiltered(0.5)) + " ; min: " + ofToString(min) + " ; max: " + ofToString(max), 25, 25);
+                ofDrawBitmapStringHighlight(i->first + " ; current: " + ofToString(values[i->first].getFiltered(0.5)) + " ; min: " + ofToString(min) + " ; max: " + ofToString(max), 25, 25);
             ofPopMatrix();
             
             index++;
@@ -149,6 +161,7 @@ public:
     
     std::map<std::string, ofxPlotter::Value> values;
     std::map<std::string, std::vector<ofxPlotter::Value>> history;
+    std::map<std::string, std::vector<bool>> accents;
     
     
     // Parameters
