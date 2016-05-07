@@ -57,6 +57,7 @@ class ofxPlotter {
 public:
     ofxPlotter() {
         windowSize = 300;
+        ofAddListener(ofEvents().update, this, &::ofxPlotter::update);
     }
     
     void updateHistory() {
@@ -70,10 +71,11 @@ public:
     }
     
     void addAccent(std::string index) {
+//        ofLog() << "added accent";
         accents[index][accents[index].back()] = true;
     }
     
-    void update() {
+    void update(ofEventArgs & args) {
         updateHistory();
     }
     
@@ -147,7 +149,7 @@ public:
                         ofSetLineWidth(2);
                         ofLine(j * stepWidth, index * yspace,
                                j * stepWidth, index * (yspace + 1));
-//                        ofLog() << "accent at index " << j;
+                        ofLog() << "accent at index " << j;
                     }
                 }
                 ofDrawBitmapStringHighlight(i->first + " ; current: " + ofToString(values[i->first].getFiltered(0.5)) + " ; min: " + ofToString(min) + " ; max: " + ofToString(max), 25, 25);
