@@ -78,6 +78,10 @@ public:
         accents[index][accents[index].size() - 1] = 5;
     }
     
+    void addGuideline(std::string index, float guideline) {
+        guidelines[index] = guideline;
+    }
+    
     void update(ofEventArgs & args) {
         updateHistory();
     }
@@ -86,6 +90,7 @@ public:
         return (Value&)values[righthand];
         
     }
+    
     
     
     void drawOverlay(float x, float y, float width, float height) {
@@ -117,6 +122,8 @@ public:
         for (std::map<std::string, ofxPlotter::Value>::iterator i = values.begin(); i != values.end(); i++) {
             std::vector<ofxPlotter::Value>* historyValues = &history[i->first];
             
+            ofColor plotColor = ofColor::fromHsb((index * colorspaceWidth), 255, 150, 255);
+            
             // Measuring the function scale
             float sum = 0;
             float max = -999999999;
@@ -143,12 +150,18 @@ public:
                     p = ofPoint(j * stepWidth,
                                 mappedPoint * yspace);
                     ofSetLineWidth(2);
-                    ofSetColor(ofColor::fromHsb((index * colorspaceWidth), 255, 200, 255));
+                    ofSetColor(plotColor);
                     if (j != 0) ofLine(p2, p);
                     p2 = p;
                     
                 }
-            
+
+                auto guidelineIter = guidelines.find(i->first);
+                if (guidelineIter != guidelines.end()) {
+                    float mappedPoint = 1 - ofMap(guidelines[i->first], min, max, 0, 1);
+                    ofLine(x, y + yspace * mappedPoint, x + width, y + yspace * mappedPoint);
+                }
+
                 int lastx = -200;
                 for (int j = 0; j < (*historyValues).size(); j++) {
                     if (accents[i->first][j] != 0) {
@@ -171,8 +184,11 @@ public:
                     }
                 }
             
-                ofSetColor(255, 50);
-                ofDrawBitmapStringHighlight(i->first + " ; current: " + ofToString(values[i->first].getFiltered(0.5), 4) + " ; min: " + ofToString(min, 4) + " ; max: " + ofToString(max, 4), 25, 25);
+                std::string overlay = i->first + " ; current: " + ofToString(values[i->first].getFiltered(0.5), 4) + " ; min: " + ofToString(min, 4) + " ; max: " + ofToString(max, 4);
+                ofSetColor(255, 240);
+                ofDrawRectangle(0, 0, overlay.length() * 8, 15);
+                ofSetColor(plotColor);
+                ofDrawBitmapString(overlay, 0, 25 - 12);
             ofPopMatrix();
             
             index++;
@@ -184,6 +200,7 @@ public:
     std::map<std::string, ofxPlotter::Value> values;
     std::map<std::string, std::vector<ofxPlotter::Value>> history;
     std::map<std::string, std::vector<int>> accents;
+    std::map<std::string, float> guidelines;
     
     
     // Parameters
