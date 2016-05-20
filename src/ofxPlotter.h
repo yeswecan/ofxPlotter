@@ -115,6 +115,43 @@ public:
             counter++;
         }
     }
+
+	void drawCustomPlot(string plot, int x, int y,
+		int width, int height) {
+		std::vector<ofxPlotter::Value>* historyValues = &history[plot];
+
+		// Measuring the function scale
+		float sum = 0;
+		float max = -999999999;
+		float min = 999999999;
+		for (int i = 0; i < historyValues->size(); i++) {
+			float value = (*historyValues).operator[](i).getF();
+			sum += value;
+			if (value > max) max = value;
+			if (value < min) min = value;
+		}
+		float median = sum / historyValues->size();
+
+		float multiplier = 1 / (max - min);
+
+		float stepWidth = width / historyValues->size();
+		ofPushMatrix();
+			ofTranslate(x, y);
+
+			ofPoint p, p2;
+			for (int j = 0; j < (*historyValues).size(); j++) {
+
+				float mappedPoint = 1 - ofMap((*historyValues)[j].getF(), min, max, 0, 1);
+
+				p = ofPoint(j * stepWidth,
+					mappedPoint * (float)height);
+				ofSetLineWidth(2);
+				if (j != 0) ofLine(p2, p);
+				p2 = p;
+
+			}
+		ofPopMatrix();
+	}
     
     void draw(float x, float y, float width, float height, int verticalLines = 16) {
         int graphCount = values.size();
