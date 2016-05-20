@@ -91,7 +91,9 @@ public:
         
     }
     
-    
+    float getHistoryFor(std::string index, int step) {
+        return history[index][history[index].size() - step].getF();
+    }
     
     void drawOverlay(float x, float y, float width, float height) {
         int graphCount = values.size();
