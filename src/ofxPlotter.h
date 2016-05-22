@@ -92,7 +92,7 @@ public:
     }
     
     float getHistoryFor(std::string index, int step) {
-        return history[index][history[index].size() - step].getF();
+        return history[index][history[index].size() - 1 - step].getF();
     }
     
     void drawOverlay(float x, float y, float width, float height) {
