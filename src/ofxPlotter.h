@@ -186,11 +186,28 @@ public:
                     }
                 }
             
-                std::string overlay = i->first + " ; current: " + ofToString(values[i->first].getFiltered(0.5), 4) + " ; min: " + ofToString(min, 4) + " ; max: " + ofToString(max, 4);
+                std::string overlayName = i->first;
+                std::string minValueStr = ofToString(min, 4);
+                std::string maxValueStr = ofToString(max, 4);
+            
+                // Plot name
                 ofSetColor(255, 240);
-                ofDrawRectangle(0, 0, overlay.length() * 8, 15);
+                ofDrawRectangle(width - overlayName.length() * 8, yspace / 2 - 12, overlayName.length() * 8, 15);
                 ofSetColor(plotColor);
-                ofDrawBitmapString(overlay, 0, 25 - 12);
+                ofDrawBitmapString(overlayName, width - overlayName.length() * 8, yspace / 2);
+            
+                // Max value
+                ofSetColor(255, 240);
+                ofDrawRectangle(0, 0, maxValueStr.length() * 8, 15);
+                ofSetColor(plotColor);
+                ofDrawBitmapString(maxValueStr, 0, 12);
+            
+                // Min value
+                ofSetColor(255, 240);
+                ofDrawRectangle(0, yspace - 12, minValueStr.length() * 8, 15);
+                ofSetColor(plotColor);
+                ofDrawBitmapString(minValueStr, 0, yspace);
+            
             ofPopMatrix();
             
             index++;
